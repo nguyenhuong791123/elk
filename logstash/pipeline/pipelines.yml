@@ -1,0 +1,10 @@
+- pipeline.id: nginx
+  pipeline.batch.size: 125
+  path.config: "/etc/logstash/conf.d/nginx.conf"
+  pipeline.workers: 1
+  queue.type: persisted
+- pipeline.id: syslog
+  pipeline.batch.size: 125
+  path.config: "/etc/logstash/conf.d/syslog.conf"
+  pipeline.workers: 1
+  queue.type: persisted

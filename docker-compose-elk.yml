@@ -11,8 +11,8 @@ services:
     environment:
       - "discovery.type=single-node"
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - "transport.host=127.0.0.1"
       - "xpack.security.enabled=false"
+      - "transport.host=127.0.0.1"
     ports:
       - 9200:9200
       - 9300:9300
@@ -24,10 +24,12 @@ services:
     restart: always
     volumes:
       - //C/Users/huongnv/elk/logstash/pipeline:/usr/share/logstash/pipeline
+      - //C/Users/huongnv/elk/logstash/conf.d:/etc/logstash/conf.d
+      - //C/Users/huongnv/elk/logstash/logs:/var/log/logs
       - //C/Users/huongnv/elk/nginx/logs:/var/log/nginx
     depends_on:
       - sc-elastic
-      - sc-redis
+      # - sc-redis
     ports:
       - 5044:5044
 
@@ -44,28 +46,28 @@ services:
     ports:
       - 5601:5601
 
-  sc-redis:
-    image: redis
-    container_name: sc-redis
-    restart: always
-    command: redis-server --appendonly yes --requirepass redis080
-    volumes:
-      - //C/Users/huongnv/elk/redis/data:/data
-    ports:
-      - 6379:6379
+  # sc-redis:
+  #   image: redis
+  #   container_name: sc-redis
+  #   restart: always
+  #   command: redis-server --appendonly yes --requirepass redis080
+  #   volumes:
+  #     - //C/Users/huongnv/elk/redis/data:/data
+  #   ports:
+  #     - 6379:6379
 
-  sc-redis-ui:
-    image: rediscommander/redis-commander
-    container_name: sc-redis-ui
-    restart: always
-    environment:
-      REDIS_HOSTS: 'local:sc-redis:6379:0:redis080'
-      # REDIS_PASSWORD: redis080
-      TZ: 'Asia/Tokyo'
-    depends_on:
-      - sc-redis
-    ports:
-      - 7081:8081
+  # sc-redis-ui:
+  #   image: rediscommander/redis-commander
+  #   container_name: sc-redis-ui
+  #   restart: always
+  #   environment:
+  #     REDIS_HOSTS: 'local:sc-redis:6379:0:redis080'
+  #     # REDIS_PASSWORD: redis080
+  #     TZ: 'Asia/Tokyo'
+  #   depends_on:
+  #     - sc-redis
+  #   ports:
+  #     - 7081:8081
 
   sc-nginx:
     image: nginx:latest

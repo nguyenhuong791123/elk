@@ -1,0 +1,5 @@
+path.config: /etc/logstash/conf.d/*.conf
+
+xpack.monitoring.elasticsearch.url: http://sc-elastic:9200
+xpack.monitoring.elasticsearch.username: elastic
+xpack.monitoring.elasticsearch.password: changeme
