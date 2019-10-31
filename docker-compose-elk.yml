@@ -1,0 +1,77 @@
+version: '3'
+
+services:
+  sc-elastic:
+    container_name: sc-elastic
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.4
+    # image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.2.4
+    restart: always
+    volumes:
+      - //C/Users/huongnv/elk/elastic/data:/usr/share/elasticsearch/data
+    environment:
+      - "discovery.type=single-node"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "transport.host=127.0.0.1"
+      - "xpack.security.enabled=false"
+    ports:
+      - 9200:9200
+      - 9300:9300
+
+  sc-logstash:
+    container_name: sc-logstash
+    image: docker.elastic.co/logstash/logstash:6.2.4
+    # image: docker.elastic.co/logstash/logstash-oss:6.2.4
+    restart: always
+    volumes:
+      - //C/Users/huongnv/elk/logstash/pipeline:/usr/share/logstash/pipeline
+      - //C/Users/huongnv/elk/nginx/logs:/var/log/nginx
+    depends_on:
+      - sc-elastic
+      - sc-redis
+    ports:
+      - 5044:5044
+
+  sc-kibana:
+    image: docker.elastic.co/kibana/kibana:6.2.4
+    # image: docker.elastic.co/kibana/kibana-oss:6.2.4
+    container_name: sc-kibana
+    # environment:
+    #   ELASTICSEARCH_URL: http://sc-elastic:9200
+    volumes:
+      - //C/Users/huongnv/elk/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
+    depends_on:
+      - sc-elastic
+    ports:
+      - 5601:5601
+
+  sc-redis:
+    image: redis
+    container_name: sc-redis
+    restart: always
+    command: redis-server --appendonly yes --requirepass redis080
+    volumes:
+      - //C/Users/huongnv/elk/redis/data:/data
+    ports:
+      - 6379:6379
+
+  sc-redis-ui:
+    image: rediscommander/redis-commander
+    container_name: sc-redis-ui
+    restart: always
+    environment:
+      REDIS_HOSTS: 'local:sc-redis:6379:0:redis080'
+      # REDIS_PASSWORD: redis080
+      TZ: 'Asia/Tokyo'
+    depends_on:
+      - sc-redis
+    ports:
+      - 7081:8081
+
+  sc-nginx:
+    image: nginx:latest
+    container_name: sc-nginx
+    restart: always
+    ports:
+      - 80:80
+    volumes:
+      - //C/Users/huongnv/elk/nginx/logs:/var/log/nginx
