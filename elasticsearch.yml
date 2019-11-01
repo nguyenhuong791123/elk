@@ -1,0 +1,5 @@
+network.host: 0.0.0.0
+cluster.name: docker-cluster
+cluster.initial_master_nodes: [ sc-es01, sc-es02 ]
+# xpack.security.enabled: false
+# transport.host: 127.0.0.1

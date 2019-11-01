@@ -1,48 +1,64 @@
 version: '3'
 
 services:
-  sc-elastic:
-    container_name: sc-elastic
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.4
-    # image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.2.4
+  sc-es01:
+    container_name: sc-es01
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.4.2
+    # image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.4.2
     restart: always
     volumes:
-      - //C/Users/huongnv/elk/elastic/data:/usr/share/elasticsearch/data
+      - //C/Users/huongnv/elk/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - //C/Users/huongnv/elk/es01/data:/usr/share/elasticsearch/data
+      # - //C/Users/huongnv/elk/es01/logs/:/usr/share/elasticsearch/logs
     environment:
-      - "discovery.type=single-node"
+      - node.name=sc-es01
+      - discovery.seed_hosts=sc-es02
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - "xpack.security.enabled=false"
-      - "transport.host=127.0.0.1"
     ports:
       - 9200:9200
       - 9300:9300
 
+  sc-es02:
+    container_name: sc-es02
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.4.2
+    # image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.4.2
+    restart: always
+    volumes:
+      - //C/Users/huongnv/elk/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - //C/Users/huongnv/elk/es02/data:/usr/share/elasticsearch/data
+      # - //C/Users/huongnv/elk/es02/logs/:/usr/share/elasticsearch/logs
+    environment:
+      - node.name=sc-es02
+      - discovery.seed_hosts=sc-es01
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+
   sc-logstash:
     container_name: sc-logstash
-    image: docker.elastic.co/logstash/logstash:6.2.4
-    # image: docker.elastic.co/logstash/logstash-oss:6.2.4
+    image: docker.elastic.co/logstash/logstash:7.4.2
+    # image: docker.elastic.co/logstash/logstash-oss:7.4.2
     restart: always
     volumes:
       - //C/Users/huongnv/elk/logstash/pipeline:/usr/share/logstash/pipeline
+      - //C/Users/huongnv/elk/logstash/pipelines.yml:/usr/share/logstash/config/pipelines.yml
       - //C/Users/huongnv/elk/logstash/conf.d:/etc/logstash/conf.d
       - //C/Users/huongnv/elk/logstash/logs:/var/log/logs
       - //C/Users/huongnv/elk/nginx/logs:/var/log/nginx
     depends_on:
-      - sc-elastic
+      - sc-es01
+      - sc-es02
       # - sc-redis
     ports:
       - 5044:5044
 
   sc-kibana:
-    image: docker.elastic.co/kibana/kibana:6.2.4
-    # image: docker.elastic.co/kibana/kibana-oss:6.2.4
+    image: docker.elastic.co/kibana/kibana:7.4.2
+    # image: docker.elastic.co/kibana/kibana-oss:7.4.2
     container_name: sc-kibana
-    # environment:
-    #   ELASTICSEARCH_URL: http://sc-elastic:9200
     volumes:
       - //C/Users/huongnv/elk/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
     depends_on:
-      - sc-elastic
+      - sc-es01
+      - sc-es02
     ports:
       - 5601:5601
 

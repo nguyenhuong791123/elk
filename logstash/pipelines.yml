@@ -1,0 +1,10 @@
+- pipeline.id: logstash
+  pipeline.batch.size: 125
+  path.config: "/etc/logstash/conf.d/logstash.conf"
+  pipeline.workers: 1
+
+- pipeline.id: nginx
+  pipeline.batch.size: 125
+  path.config: "/etc/logstash/conf.d/nginx.conf"
+  pipeline.workers: 1
+
