@@ -34,13 +34,18 @@ services:
 
   sc-logstash:
     container_name: sc-logstash
-    image: docker.elastic.co/logstash/logstash:7.4.2
+    image: nhdocker/logstash:7.4.2
     # image: docker.elastic.co/logstash/logstash-oss:7.4.2
+    build:
+      context: ./logstash
+      dockerfile: Dockerfile
     restart: always
     volumes:
-      - //C/Users/huongnv/elk/logstash/pipeline:/usr/share/logstash/pipeline
+      # - //C/Users/huongnv/elk/logstash/pipeline:/usr/share/logstash/pipeline
       - //C/Users/huongnv/elk/logstash/pipelines.yml:/usr/share/logstash/config/pipelines.yml
+      - //C/Users/huongnv/elk/logstash/logstash.yml:/usr/share/logstash/config/logstash.yml
       - //C/Users/huongnv/elk/logstash/conf.d:/etc/logstash/conf.d
+      - //C/Users/huongnv/elk/tls/certs:/etc/pki/tls/certs
       - //C/Users/huongnv/elk/logstash/logs:/var/log/logs
       - //C/Users/huongnv/elk/nginx/logs:/var/log/nginx
     depends_on:
